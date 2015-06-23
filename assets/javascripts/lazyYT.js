@@ -41,13 +41,31 @@
         $el.on('click', function (e) {
             e.preventDefault();
             if (!$el.hasClass('lazyYT-video-loaded') && $el.hasClass('lazyYT-image-loaded')) {
-                $el.html('<iframe width="' + width + '" height="' + height + '" src="//www.youtube.com/embed/' + id + '?autoplay=1&' + youtubeParameters + '" style="position:absolute; top:0; left:0; width:100%; height:100%;" frameborder="0" allowfullscreen></iframe>')
+                var html5 = supportsHTML5Video();
+                $el.html('<iframe width="' + width + '" height="' + height + '" src="https://www.youtube.com/embed/' + id + '?autoplay=1&' + youtubeParameters + (html5 ? "html5=1" : "") + '" style="position:absolute; top:0; left:0; width:100%; height:100%;" frameborder="0" allowfullscreen></iframe>')
                     .removeClass('lazyYT-image-loaded')
                     .addClass('lazyYT-video-loaded');
             }
         });
 
-    }
+    };
+    
+    function supportsHTML5Video() {
+        var elem = document.createElement('video');
+        var html5 = false;
+
+        try {
+            html5 = !!elem.canPlayType;
+            if ( html5 ) {
+                html5      = new Boolean(html5);
+                html5.ogg  = elem.canPlayType('video/ogg; codecs="theora"')      .replace(/^no$/,'');
+                html5.h264 = elem.canPlayType('video/mp4; codecs="avc1.42E01E"') .replace(/^no$/,'');
+                html5.webm = elem.canPlayType('video/webm; codecs="vp8, vorbis"').replace(/^no$/,'');
+            }
+        } catch(e) { }
+        
+        return html5;
+    };
 
     $.fn.lazyYT = function () {
         return this.each(function () {
